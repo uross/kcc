@@ -5,8 +5,6 @@ import java.net.Socket;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
