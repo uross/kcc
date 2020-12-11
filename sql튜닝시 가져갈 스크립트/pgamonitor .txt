@@ -1,0 +1,19 @@
+SET LINE 200
+COL SQLS FORMAT A60
+
+select * from
+(SELECT a.sid ,
+       round(pga_alloc_mem /1024/1024) pga_alloc_mem ,
+       round(pga_used_mem/1024/1024) pga_used_mem ,
+       round(pga_freeable_mem/1024/1024) pga_freeable_mem ,
+       round(pga_max_mem/1024/1024) pga_max_mem ,
+       SUBSTR( sql_text , 1 , 50 ) sqls
+FROM   v$session a ,
+       v$process b ,
+       v$sqlarea c
+WHERE  a.paddr=b.addr
+AND    a.status ='ACTIVE'
+AND    a.sql_hash_value = hash_value
+       order by pga_alloc_mem desc, 2 desc)
+union all
+select 1, 1, 1, 1, 1, 'TOTAL PGA : ' || to_char(round(sum(pga_alloc_mem/1024/1024))) || 'MB' from v$process

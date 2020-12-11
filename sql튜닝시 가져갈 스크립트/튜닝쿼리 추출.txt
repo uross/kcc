@@ -1,0 +1,118 @@
+-======================================================================================================
+/* 1. 튜닝 대상 쿼리 추출 */
+--======================================================================================================
+------------------------------------------------------------------------------------------------------
+--> 1.1 Response Time이 가장 오래 걸리는 Top 10
+------------------------------------------------------------------------------------------------------
+col schema_name for a10;
+select  *
+from    (
+        select  a.parsing_schema_name as schema_name,
+                a.hash_value,
+                count(1) sql_cnt,
+                count(distinct substr(sql_text,1,100)) sql_cnt2,
+                sum(a.executions) exec,
+                round(avg(buffer_gets/decode(a.executions,0,1,a.executions))) buffer_gets,
+                round(avg(a.disk_reads/decode(a.executions,0,1,a.executions))) disk_reads,
+                round(avg(a.rows_processed/decode(a.executions,0,1,a.executions))) rows_processed ,
+                round(avg(a.elapsed_time/decode(a.executions,0,1,a.executions)/1000000),2) "ELAPSED TIME(AVG)",
+                count(case when elapsed_time/decode(a.executions,0,1,a.executions)/1000000 >= 10 then 1 end) "BAD SQL",
+                round(max(elapsed_time/decode(a.executions,0,1,a.executions)/1000000),2) "ELAPSED_TIME(MAX)"
+        from    v$sql a
+        where   0=0
+        and     a.parsing_schema_name = 'OMPDBA'
+        and     a.last_active_time > to_date(&YYYYMMDD,'YYYYMMDD')
+        and     upper(a.sql_text) not like '%BEGIN%'
+        and     upper(a.sql_text) not like '%SQLAREA%'
+        and     upper(a.sql_text) not like '%DBA_%'
+        and     upper(a.sql_text) not like '%USER_%'
+        and     upper(a.sql_text) not like '%ALL_%'
+        and     a.executions > 0
+        group by  a.parsing_schema_name,
+                  a.hash_value
+        order by  round(avg(a.elapsed_time/decode(a.executions,0,1,a.executions)/1000000),2) desc
+        )
+where   rownum < 11;
+ 
+------------------------------------------------------------------------------------------------------
+--> 1.2 Response Time 확인
+------------------------------------------------------------------------------------------------------
+-- 논리적(Buffer Gets 기준)
+select  'Expected Run Time = '||round(a.buffer_gets/decode(a.executions,0,1,a.executions)/500,2) as "Running Time (Buffer기준)",
+        a.hash_value
+from    v$sqlarea a
+where   a.buffer_gets/decode(a.executions,0,1,a.executions) / 500 > 100
+and     upper(a.sql_text) not like '%BEGIN%'
+and     upper(a.sql_text) not like '%SQLAREA%'
+and     upper(a.sql_text) not like '%DBA_%'
+and     upper(a.sql_text) not like '%USER_%'
+and     upper(a.sql_text) not like '%ALL_%'
+order by  a.executions desc;
+ 
+-- 물리적(Disk 기준)
+select  'Expected Run Time = '||round(a.disk_reads/decode(a.executions,0,1,a.executions)/50,2) as "Running Time (Disk 기준)",
+        a.hash_value
+from    v$sqlarea a
+where   a.disk_reads / decode(a.executions,0,1,a.executions) / 50 > 100
+and     upper(a.sql_text) not like '%BEGIN%'
+and     upper(a.sql_text) not like '%SQLAREA%'
+and     upper(a.sql_text) not like '%DBA_%'
+and     upper(a.sql_text) not like '%USER_%'
+and     upper(a.sql_text) not like '%ALL_%'
+order by  a.executions desc;
+ 
+------------------------------------------------------------------------------------------------------
+--> 1.3 SQL 쿼리 확인 (with HASH_VALUE)
+------------------------------------------------------------------------------------------------------
+select  translate(dbms_lob.substr(a.sql_fulltext,dbms_lob.getlength(a.sql_fulltext),1),':','&') as "Full_SQL",
+--        'Expected Run Time = '||buffer_gets/decode(executions,0,1,executions)/500 as "Running Time",
+        'Executions : '||a.executions,
+        'Hash-Value : '||hash_value
+from    v$sqlarea a
+where   0=0
+and     upper(a.sql_text) not like '%BEGIN%'
+and     upper(a.sql_text) not like '%SQLAREA%'
+and     upper(a.sql_text) not like '%DBA_%'
+and     upper(a.sql_text) not like '%USER_%'
+and     upper(a.sql_text) not like '%ALL_%'
+and     upper(a.sql_text) not like '%V$SQL%'
+and      a.hash_value =  &hash_value
+order by  a.executions desc;
+ 
+------------------------------------------------------------------------------------------------------
+--> 1.4 바인드 변수 값 확인 (with HASH_VALUE)
+------------------------------------------------------------------------------------------------------
+col datatype_string for a40;
+select  'DEFINE '||
+        replace(a.name,':','')||' = '||
+        case when a.value_string is null then 'NULL'
+             when substr(a.datatype_string,1,3) in ('VAR','CHA') and a.value_string is not null
+                  then ''''||a.value_string||''''
+             when substr(a.datatype_string,1,3) in ('NUM') and a.value_string is not null
+                  then a.value_string
+        end datatype_string,
+        null,
+        null
+from    v$sql_bind_capture a
+where   a.hash_value = &hash_value;
+ 
+--======================================================================================================
+/* 2. 현재 실행중인 쿼리 */
+--======================================================================================================
+select  a.osuser,
+        a.status,
+        b.sql_text,
+        'HASH-VALUE : '||b.hash_value,
+        decode(a.command,0,'no command',1,'create table',2,'insert',3,'select',6,'update',7,'delete',
+        9,'create index',15,'alter table',21,'create view',23,'validate index',35,'alter database',
+        39,'create tablespace',40,'alter tablespace',41,'drop tablespace',53,'drop user',
+        62,'analyze tablle',63,'analyze index',
+        a.command||': other') command,
+        to_char(sysdate - (a.last_call_et/864000),'YYYY.MM.DD HH24:MI:SS') last_call_et,
+        'LOGON TIME : '|| a.logon_time
+from    v$session a,
+        v$sqlarea b
+where   a.sql_address = b.address
+and     a.status = 'ACTIVE'
+and     a.osuser <> 'Administrator'
+and     b.sql_text not like '%a.osuser%';

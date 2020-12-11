@@ -1,0 +1,12 @@
+SELECT tablespace_name ,
+       segment_owner ,
+       segment_name ,
+       segment_type ,
+       ROUND( allocated_space/1024/1024 ) alloc ,
+       ROUND( used_space/1024/1024 ) useed ,
+       ROUND( reclaimable_space/1024/1024 ) reclaim ,
+       recommendations ,
+       c1 ,
+       c2 ,
+       c3
+FROM   TABLE( dbms_space.asa_recommendations( ) )

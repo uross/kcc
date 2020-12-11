@@ -1,0 +1,36 @@
+
+v$sqlarea 뷰에서 sql문을 가지고 hash value 알아 오기 
+
+    select sql_text, hash_value 
+      from v$sqlarea
+     where sql_text like 'SELECT MAX( decode( a.autr_stat ,%'  
+
+
+
+
+
+v$sql_plan 뷰에서 hash value를 이용해 sql plan 정보 가져오기 
+  
+    select lpad(operation, length(operation)+2*(level-1))||
+       decode(id,0, 'Cost Estimate : ' ||  decode (position , '0'
+       ,'N/A',position), null) || '' || options ||
+       decode(object_name, null, null, ':') || rpad(object_owner,
+       length(object_name)+1,',')|| object_name||
+       decode(object_type, 'UNIQUE',' (U)', 'NIN_UNIQUE',
+       '(NU)', null) plan
+  from v$sql_plan
+  start with id=0 and hash_value =2945738873
+  connect by prior id=parent_id and hash_value=2945738873;  
+  
+  
+  
+PLAN
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT STATEMENTCost Estimate : 360
+  SORTAGGREGATE
+    PARTITION RANGESINGLE
+      TABLE ACCESSBY LOCAL INDEX ROWID:SU,,,,,,,DADEACHT
+        INDEXRANGE SCAN:SU,,,,,,,,,DADEACHX02
+        
+        
+        

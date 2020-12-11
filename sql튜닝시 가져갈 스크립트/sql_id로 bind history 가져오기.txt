@@ -1,0 +1,11 @@
+
+
+select sql_id,name,VALUE_STRING, datatype_string,row_num 
+from (
+select sql_id,name,VALUE_STRING, datatype_string,
+       row_number() over (partition by sql_id,name order by sql_id,name) as row_num 
+ from DBA_HIST_SQLBIND
+where sql_id='08g4pwfrt8u3t'
+)
+where row_num in (1,2,3)
+order by row_num, name;

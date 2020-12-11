@@ -1,0 +1,73 @@
+
+ 
+----lite plus에서 트레이스를 바로 수행할때  bind값 입력하는 version
+SELECT SUBSTR( name , 2 ) || ' = ' || decode( datatype , 1 , '''' || value_string || '''' , 2 , value_string )
+FROM   v$sql_bind_capture
+WHERE  hash_value = 3955914449
+ 
+ 결과 값을 바인드 값 입력 팝업창에서  text모드로 바꾼후 그대로 카피하셔서 쓰면 됩니다. 
+ 
+ 
+ 
+번외 lite plus에서 ftp가 안되 사용하기 힘들거나 기타 이유로 lite plus trace연동이 안될경우 수동으로 쓸 바인드값 구하기 
+ 
+--- 바인드 값이 :1, :2, :3 형식으로 작성된  Trace 버전
+SELECT 'var b'|| SUBSTR( name , 2 )  || ' ' || datatype_string-
+FROM   v$sql_bind_capture
+WHERE  hash_value = 3955914449
+union all
+SELECT 'exec :b'|| SUBSTR( name , 2 ) || ' := ' || decode( datatype , 1 , '''' || value_string || '''' , 2 , value_string )
+FROM   v$sql_bind_capture
+WHERE  hash_value = 3955914449
+
+---- bind값이 :b1, :b2, :b3 형식으로 작성된  trace 버전
+SELECT 'var '|| name  || ' ' || datatype_string
+FROM   v$sql_bind_capture
+WHERE  hash_value = 3955914449
+union all
+SELECT 'exec '|| name || ' := ' || decode( datatype , 1 , '''' || value_string || '''' , 2 , value_string )
+FROM   v$sql_bind_capture
+WHERE  hash_value = 3955914449
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---- bind값이 :b1, :b2, :b3 형식으로 작성된  trace 버전
+SELECT 'var '|| name  || ' ' || datatype_string
+FROM   v$sql_bind_capture
+WHERE  hash_value = &hash_value
+union all
+SELECT 'exec '|| name || ' := ' || decode( datatype , 1 , '''' || value_string || '''' , 2 , value_string )
+FROM   v$sql_bind_capture
+WHERE  hash_value = &hash_value
+union all
+select   dbms_lob.substr(a.sql_fulltext,dbms_lob.getlength(a.sql_fulltext),1) 
+from    v$sqlarea a
+WHERE  hash_value = &hash_value
+;
+
+

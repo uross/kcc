@@ -1,0 +1,5 @@
+
+select substr(sql_text, 1, 100), cluster_wait_time wait_time_microsecond
+from v$sql
+where cluster_wait_time > 0
+order by 2 desc;

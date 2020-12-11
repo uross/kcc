@@ -1,0 +1,149 @@
+SELECT 'Global Cache Hit' "점검항목" ,
+       ROUND(( a.val + b.val + c.val + d.val ) /( e.val + f.val ) * 100 , 2 ) "값"
+FROM   (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'global cache gets'
+       ) a ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'global cache converts'
+       ) b ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ('global cache cr blocks received' , 'gc cr blocks received' )
+       ) c ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ( 'global cache current blocks received' , 'gc current blocks received' )
+       ) d ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'consistent gets'
+       ) e ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'db block gets'
+       ) f -- GLOBAL CACHE HIT(%)
+UNION  ALL
+SELECT 'Global cache get' chk ,
+       ROUND( decode( b.val , 0 , 0 , a.val /b.val ) * 10 , 2 ) val
+FROM   (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE    a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'global cache get time'
+       ) a ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE    a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name = 'global cache gets'
+       ) b -- GLOBAL CACHE GET
+UNION  ALL
+SELECT 'Receive time for CR block' chk ,
+       ROUND( decode( b.val , 0 , 0 , a.val /b.val ) * 10 , 2 ) val
+FROM   (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE    a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ( 'global cache cr block receive time' , 'gc cr block receive time' )
+       ) a ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ( 'global cache cr blocks received' , 'gc cr blocks received' )
+       ) b -- RECEIVE TIME FOR CR BLOCK
+UNION  ALL
+SELECT 'Receive time for current block' chk ,
+       ROUND( decode( b.val , 0 , 0 , a.val /b.val ) * 10 , 2 ) val
+FROM   (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ( 'global cache current block receive time' , 'gc current block receive time' )
+       ) a ,
+       (
+        SELECT 
+               NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+        FROM   xm_stat_name b ,
+               xm_sys_stat a
+        WHERE  a.stat_id = b.stat_id
+        AND    a.server_name = UPPER( :server )
+        AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+        AND    b.stat_name in ( 'global cache current blocks received' , 'gc current blocks received' )
+       ) b -- RECEIVE TIME FOR CUREENT BLOCK
+UNION  ALL
+SELECT 
+       'global cache blocks lost' ,
+       NVL(( SUM( decode( a.logging_time , GREATEST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) - SUM( decode( a.logging_time , LEAST( TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) , TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' ) ) , sigma_val ) ) ) , 0 ) val
+FROM   xm_stat_name b ,
+       xm_sys_stat a
+WHERE  a.stat_id = b.stat_id
+AND    a.server_name = UPPER( :server )
+AND    a.logging_time between  TO_DATE( :date1 , 'YYYY-MM-DD HH24:MI:SS' ) and TO_DATE( :date2 , 'YYYY-MM-DD HH24:MI:SS' )
+AND    b.stat_name in ( 'global cache blocks lost' , 'gc blocks lost' ) -- GLOBAL CACHE BLOCKS LOST
+
+
+[BINDS]
+DATE1 = '2007-10-01 10:00:00'
+DATE2 = '2007-10-01 12:00:00'
+SERVER = 'PKLI1'
+
+

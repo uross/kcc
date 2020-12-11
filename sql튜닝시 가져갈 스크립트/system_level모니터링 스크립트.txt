@@ -1,0 +1,69 @@
+-----모니터링 껍대기를 만든다.   db 계정에 붙어 1회 수행한다  filename : cmoni.sql
+
+create table snaptable2 as    ------rac의 경우는 _sid를 붙인다.
+        select 'active session' name, count(*) value, sysdate difftime from v$session where status='ACTIVE'
+        union all
+        select 'lock wait session', count(*), sysdate difftime from v$lock where lmode=0
+        union all
+        select name, value, sysdate difftime
+        from v$sysstat
+        where name in ('session logical reads', 'physical reads', 'execute count', 'redo entries','parse count (hard)' )
+        union all
+        select 'transaction' name, sum(value), sysdate difftime
+        from v$sysstat
+        where name in ('user commits', 'user rollbacks')
+        union all
+        select event, time_waited, sysdate difftime from v$system_event where event in ('db file sequential read', 'db file scattered read','latch free');
+
+
+        ------stat이나 내용을 본다 초당 value값    filename : moni.sql
+select a.name,
+       case when a.name ='active session' then a.value
+            when a.name ='lock wait session' then a.value
+       else round((a.value - b.value)/((sysdate-b.difftime)*24*60*60),2) end  value
+from (
+        select 'active session' name, count(*) value from v$session where status='ACTIVE'
+        union all
+        select 'lock wait session' name, count(*) value from v$session where lockwait is not null
+        union all
+        select name, value
+        from v$sysstat
+        where name in ('session logical reads', 'physical reads', 'execute count', 'redo entries','parse count (hard)')
+        union all
+        select 'transaction' name, sum(value)
+        from v$sysstat
+        where name in ('user commits', 'user rollbacks')
+        union all
+        select event, time_waited from v$system_event where event in ('db file sequential read', 'db file scattered read','latch free')
+     ) a,
+        (select * from snaptable2 ) b  ------rac의 경우는 _sid를 붙인다.
+where a.name=b.name;
+
+@upd.sql
+;
+
+-----최근의 데이터로 업데이트 한다.  filename : upd.sql
+update /*+ bypass_ujvc */
+      (select a.name aname, b.name bname, a.value avalue, b.value bvalue, a.difftime adifftime, b.difftime bdifftime
+        from snaptable2 a,    ------rac의 경우는 _sid를 붙인다.
+        (select 'active session' name, count(*) value, sysdate difftime from v$session where status='ACTIVE'
+        union all
+        select 'lock wait session', count(*), sysdate difftime from v$lock where lmode=0
+        union all
+        select name, value, sysdate difftime
+        from v$sysstat
+        where name in ('session logical reads', 'physical reads', 'execute count', 'redo entries','parse count (hard)' )
+        union all
+        select 'transaction' name, sum(value), sysdate difftime
+        from v$sysstat
+        where name in ('user commits', 'user rollbacks')
+        union all
+        select event, time_waited, sysdate difftime from v$system_event where event in ('db file sequential read', 'db file scattered read','latch free')) b
+where a.name=b.name)
+set aname=bname,
+    avalue=bvalue,
+    adifftime=bdifftime;
+
+commit;
+
+

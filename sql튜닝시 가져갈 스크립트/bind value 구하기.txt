@@ -1,0 +1,10 @@
+var v_eqprawid NUMBER
+var v_idle varchar2(32)
+exec  :v_eqprawid :=42
+exec  :v_idle :='IDLE'
+
+SELECT MAX( rawid ) AS rawid 
+FROM   machine_trx_lss 
+WHERE  eqp_rawid = :v_eqprawid 
+AND    start_dtts = end_dtts 
+AND    eqp_state = :v_idle

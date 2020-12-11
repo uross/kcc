@@ -1,0 +1,68 @@
+select * from (
+SELECT a.*, (select object_name from dba_objects where object_id = prog) program_name --       ( --        SELECT sql_text --        FROM   dba_hist_sqltext --        WHERE  sql_id=A.sql_id --       ) sqltext
+FROM   (
+        SELECT a.* ,
+               b.sql_text,(select /*+  */ max(program_id) from v$sql where sql_id = a.sql_id) prog
+        FROM   (
+                SELECT sql_id ,
+                       SUM( buffer_gets_delta ) buffer_get ,
+                       SUM( disk_reads_delta ) disk ,
+                       SUM( rows_processed_delta ) processed_rows ,
+                       SUM( cpu_time_delta ) cpu_time ,
+                       SUM( elapsed_time_delta ) elaps_time ,
+                       ROUND( decode( SUM( elapsed_time_delta ) , 0 , 1 , SUM( elapsed_time_delta ) ) /decode( SUM( executions_delta ) , 0 , 1 , SUM( executions_delta ) ) ) / 1000000 avg_elaps ,
+                     --  SUM( io_offload_elig_bytes_delta ) io_offload_elig_bytes ,
+                       ROUND( decode( SUM( buffer_gets_delta ) , 0 , 1 , SUM( buffer_gets_delta ) ) /decode( SUM( executions_delta ) , 0 , 1 , SUM( executions_delta ) ) ) avg_buffer_gets ,
+                       SUM( executions_delta ) executions,
+                       MAX(PARSING_SCHEMA_NAME)  sc,
+                       MAX(module) modules
+                FROM   dba_hist_sqlstat
+                WHERE  buffer_gets_total IS NOT NULL
+                AND    snap_id IN (
+                                   SELECT snap_id
+                                   FROM   dba_hist_snapshot
+                                   WHERE  begin_interval_time BETWEEN TO_DATE('201401020000', 'yyyymmddhh24miss' )
+                                   AND    TO_DATE( '201401131300', 'yyyymmddhh24miss' )
+                                 --  AND    io_offload_elig_bytes_DELTA = 0
+                                   AND    buffer_gets_total > 1000
+                                  )
+                AND  PARSING_SCHEMA_NAME <> 'SYS'
+                GROUP  BY sql_id
+                ORDER  BY 1 ,
+                       2 DESC
+               ) a ,
+               dba_hist_sqltext b
+        WHERE  a.sql_id = b.sql_id( + )   --     AND A.SQL_ID ='1c6wj2wfjdcf7'
+--        AND    lower( b.sql_text ) LIKE '%gui_chrtsmm_r1%'
+--        AND    UPPER( b.sql_text ) NOT LIKE '%SELECT%'
+--        AND    UPPER( b.sql_text ) NOT LIKE '%UPDATE%'
+--        AND    UPPER( b.sql_text ) NOT LIKE '%INSERT%'
+--        AND    UPPER( b.sql_text ) NOT LIKE '%DELETE%'
+--          and  sc ='GOALS'
+       ) a
+) x
+where 1=1
+--and program_name like '%SPIFR%'
+ORDER BY 7 DESC
+
+
+
+select pool, sum(bytes)/1024/1024 from v$sgastat group by pool
+
+SQL> show recyclebin
+ORIGINAL NAME    RECYCLEBIN NAME                OBJECT TYPE  DROP TIME
+---------------- ------------------------------ ------------ -------------------
+TN_SMS           BIN$A5beow4aTHCiY6iS/UNTdQ==$0 TABLE        2013-04-30:17:18:34
+TN_SMS           BIN$sjQlsRzpSciZ6XQoJDD7PA==$0 TABLE        2013-04-30:16:33:06
+TN_SMS           BIN$pB6wlHLlTtqI+kBZfANJBw==$0 TABLE        2013-04-30:16:30:49
+TN_SMS           BIN$/tdmgVM3RyqnUQZbkXkDHQ==$0 TABLE        2013-04-30:14:51:55
+TN_SMS           BIN$Ph5lXjs3SL6dsn3dpdiyaQ==$0 TABLE        2013-04-30:14:48:48
+TN_SMS           BIN$F/aJUJEJSpivjObzHZdB6g==$0 TABLE        2013-04-30:11:24:09
+TN_SMS           BIN$Tp67184DR2uLweuaj0hRoA==$0 TABLE        2013-04-30:11:17:03
+TN_SMS           BIN$soyvawdFReG57JNwSnjlkQ==$0 TABLE        2013-04-30:11:12:11
+SQL>
+SQL> purge table "BIN$A5beow4aTHCiY6iS/UNTdQ==$0"
+  2  ;
+
+테이블이 지워졌습니다.
+

@@ -1,0 +1,109 @@
+select a.index_name,        -- 인덱스 명
+       a.table_name,        -- 테이블 명
+       table_owner,         -- 테이블 소유자
+       column_name,         -- 인덱스 컬럼
+       b.column_position,   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+       uniqueness,          -- Unique Index인가 확인
+       tablespace_name,     -- 해당 table space
+       index_type,          -- index type
+       pct_free,            -- pct free 값
+       logging,             -- 로깅 여부
+       blevel,              -- index level
+       distinct_keys,       -- 컬럼에 데이터 값 종류
+       num_rows,            -- 총 건수
+       sample_size,         -- 셈플링된 건수
+       last_analyzed,       -- 최종 통계 생성 정보
+       descend              -- 정렬 순서 여부
+       ini_trans,           -- init tran
+       max_trans,           -- max tran
+       max_extents,         -- max extents
+       leaf_blocks,         -- Leaf block
+  from user_indexes a, user_ind_columns b
+ where a.index_name=b.index_name
+  order by table_name, index_name, column_position asc ;
+  	
+  
+
+  select a.index_name,        -- 인덱스 명
+       a.table_name,        -- 테이블 명
+       a.table_owner,         -- 테이블 소유자
+       column_name,         -- 인덱스 컬럼
+       b.column_position,   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+       uniqueness,          -- Unique Index인가 확인
+       tablespace_name,     -- 해당 table space
+       index_type,          -- index type
+       pct_free,            -- pct free 값
+       logging,             -- 로깅 여부
+       blevel,              -- index level
+       distinct_keys,       -- 컬럼에 데이터 값 종류
+       num_rows,            -- 총 건수
+       sample_size,         -- 셈플링된 건수
+       last_analyzed,       -- 최종 통계 생성 정보
+       descend              -- 정렬 순서 여부
+       ini_trans,           -- init tran
+       max_trans,           -- max tran
+       max_extents,         -- max extents
+       leaf_blocks         -- Leaf block
+  from dba_indexes a, dba_ind_columns b
+ where a.index_name=b.index_name
+  order by table_name, index_name, column_position asc ;
+  
+  
+    select a.index_name,        -- 인덱스 명
+       a.table_name,        -- 테이블 명
+       a.table_owner,         -- 테이블 소유자
+       column_name,         -- 인덱스 컬럼
+       b.column_position,   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+       uniqueness          -- Unique Index인가 확인
+  from dba_indexes a, dba_ind_columns b
+ where a.index_name=b.index_name
+   and a.table_owner = upper('daarbtht')
+  order by table_name, index_name, column_position asc ;
+  
+###################################################################3
+set line 170
+column column_name format a50
+  
+	      select a.index_name,        -- 인덱스 명
+	       a.table_name,        -- 테이블 명
+	       a.table_owner,         -- 테이블 소유자
+	       column_name,         -- 인덱스 컬럼
+	       b.column_position,   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+	       uniqueness          -- Unique Index인가 확인
+	  from dba_indexes a, dba_ind_columns b
+	 where a.index_name=b.index_name
+	   and a.table_name = upper('icsrctmt')
+	  order by table_name, index_name, column_position asc ;
+  
+  
+  
+   select index_name, table_name, status
+   from dba_indexes a
+   where table_name = upper('iaincomt')
+   
+   
+      select index_name, PARTITION_NAME, status
+   from dba_ind_partitions a
+   where index_name in ('FBLOGIHX01', 'FBLOGIHX04', 'FBLOGIHX02', 'FBLOGIHX05', 'FBLOGIHX_PK')
+  
+
+
+
+       select a.index_name,        -- 인덱스 명
+       a.table_name,        -- 테이블 명
+       column_name,         -- 인덱스 컬럼
+       b.column_position   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+  from dba_part_indexes a, dba_ind_columns b
+ where a.index_name=b.index_name
+   and a.table_name = upper('caindxmt ')
+  order by table_name, index_name, column_position asc ;
+  
+  
+  
+        select b.index_name,        -- 인덱스 명
+       column_name,         -- 인덱스 컬럼
+       b.column_position,   -- 컬럼 포지션 (결합 인덱스 경우 유용)
+       uniqueness          -- Unique Index인가 확인
+  from  dba_ind_columns b
+ where  b.index_name ='DADEACHX_PK'
+  order by table_name, index_name, column_position asc ;

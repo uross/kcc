@@ -1,0 +1,13 @@
+set line 170
+
+col datatype_string format a50
+
+col value_string format a50
+
+select hash_value
+       ,name
+       ,datatype_string
+       ,position
+       ,value_string
+from v$sql_bind_capture
+where hash_value='2945738873'

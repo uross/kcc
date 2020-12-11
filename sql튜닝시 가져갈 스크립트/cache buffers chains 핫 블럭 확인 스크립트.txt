@@ -1,0 +1,35 @@
+gets값이나 sleeps값이 다른 자식 래치에 비해서 비정상적으로 높은것이 
+바로 핫 블럭
+
+  select * from 
+  (select addr, child#, gets, sleeps 
+     from v$latch_children 
+    where name = 'cache buffers chains'
+     order by sleeps desc
+  ) where rownum <= 20;
+
+
+  v$session_wait 뷰로부터 주소를 얻어서 비교하는 것이다. 
+  v$session_wait.p1raw가 자식 래치의 주소에 해당한다. 
+  만일 v$session_wait뷰로부터 얻은 래치의 주소가 과다하게 중복해서
+  나타난다면 해당 래치에 대한 편중이 생긴다는 것이고. 이경우 핫블록이라 
+  분석할수 있다. 
+
+
+
+
+  만약 편중된 래치에 대해 어떤 블록이 핫불록인지 조회 하고 싶다면
+  X$BH뷰를 이용하면 정확하게 어떤 블록이 핫블록인지 확인할수 있다. 
+
+   select  hladdr
+          ,obj
+          ,(select object_name 
+             from dba_objects 
+            where (data_object_id is null and object_id = x.obj) 
+               or data_object_id = x.obj and rownum = 1) as object_name
+          ,dbarfil
+          ,dbablk
+          ,tch 
+     from x$bh x
+    where hladdr in ('C0000000CDFF24F0', 'C0000000CE3ADDF0', 'C0000000CDF18A98')
+    order by hladdr, obj;

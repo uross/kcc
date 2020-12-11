@@ -1,0 +1,10 @@
+
+explain plan for
+ SELECT /*+ full(t1) full(t2) parallel(t1 8) parallel(t2 8) leading(t1) use_hash(t2) NO_PX_JOIN_FILTER(t2) */ 
+        *
+  FROM emp_1 t1,
+            emp_2 t2
+ WHERE t1.empno = T2.empno 
+       and t1.BIG_ENAME > '1'  ;
+
+select * from table(dbms_xplan.display());

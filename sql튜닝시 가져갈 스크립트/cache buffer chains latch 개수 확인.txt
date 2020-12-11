@@ -1,0 +1,5 @@
+select count(*) from v$latch_children
+  where name ='cache buffers chains';
+
+_DB_BLOCK_HASH_LATCHES => cache buffers chains 래치 개수 파라메터 값으로 조회 
+_DB_BLOCK_HASH_BUCKETS => 해시 버켓수 파라메터 값으로 조회 

@@ -1,0 +1,62 @@
+explain plan set statement_id ='2' for
+select emp_id, emp_name
+from temp
+where emp_id > 0;
+
+
+
+select lpad(operation, length(operation)+2*(level-1))||
+       decode(id,0, 'Cost Estimate : ' ||  decode (position , '0'
+       ,'N/A',position), null) || '' || options ||
+       decode(object_name, null, null, ':') || rpad(object_owner,
+       length(object_name)+1,',')|| object_name||
+       decode(object_type, 'UNIQUE',' (U)', 'NIN_UNIQUE',
+       '(NU)', null) || decode(object_instance, null, null,
+       '(' || object_instance||')') plan
+  from plan_table
+  start with id=0 and statement_id ='2'
+  connect by prior id=parent_id and statement_id='2';
+  
+  
+  
+
+
+v$sqlarea 뷰에서 sql문을 가지고 hash value 알아 오기 
+
+    select sql_text, hash_value 
+      from v$sqlarea
+     where sql_text like 'SELECT MAX( decode( a.autr_stat ,%'  
+
+
+
+
+
+v$sql_plan 뷰에서 hash value를 이용해 sql plan 정보 가져오기 
+  
+      select lpad(operation, length(operation)+2*(level-1))||
+       decode(id,0, 'Cost Estimate : ' ||  decode (position , '0','N/A',position), null)|| ' ' || options ||  decode(object_name, null, null, ' : ') ||
+       object_owner|| case when object_name is not null then '.' else '' end || object_name||
+       decode(object_type, 'UNIQUE',' (U)', 'NIN_UNIQUE',
+       '(NU)', null)
+       || decode(access_predicates, null, null, ' (acccess = ' || access_predicates ||' )' )   -- access predicates 정보
+       || decode(filter_predicates, null, null, ' (filter = ' || filter_predicates || ' )')    -- filter predicates 정보
+       plan
+  from v$sql_plan
+  start with id=0 and sql_id='fdxrh8tzyw0yw'
+  connect by prior id=parent_id and sql_id='fdxrh8tzyw0yw'
+ 
+  
+
+      select lpad(operation, length(operation)+2*(level-1))||
+       decode(id,0, 'Cost Estimate : ' ||  decode (position , '0','N/A',position), null)|| ' ' || options ||  decode(object_name, null, null, ' : ') ||
+       object_owner|| case when object_name is not null then '.' else '' end || object_name||
+       decode(object_type, 'UNIQUE',' (U)', 'NIN_UNIQUE',
+       '(NU)', null)
+       || decode(access_predicates, null, null, ' (acccess = ' || access_predicates ||' )' )   -- access predicates 정보
+       || decode(filter_predicates, null, null, ' (filter = ' || filter_predicates || ' )')    -- filter predicates 정보
+       plan
+  from v$sql_plan
+  start with id=0 and hash_value=&hash_value
+  connect by prior id=parent_id and hash_value=&hash_value
+ 
+  

@@ -1,0 +1,84 @@
+drop materialized view log on memp;
+
+drop materialized view log on emp;
+
+
+drop materialized view log on BIG_emp;
+
+
+
+
+create materialized view log on big_emp with rowid, sequence(empno, deptno) including new values
+
+drop materialized view mempmv
+
+
+
+    create materialized view mempmv
+    build immediate
+    refresh fast on commit
+    enable query rewrite
+    as select deptno, count(*) cnt
+    from big_emp
+    group by deptno;
+    
+
+    EXEC DBMS_STATS.GATHER_TABLE_STATS (ownname=> 'SCOTT', tabname => 'BIG_EMP', estimate_percent => 10,  method_opt => 'FOR ALL INDEXED COLUMNS SIZE 1' , cascade => true , degree => 8  ) ;
+
+
+
+
+    create index mvemp on mempmv(deptno);
+    
+    
+    select * from mempmv
+    
+    insert into memp values (100, 10);
+    
+    
+    commit
+    
+    select  /*+ REWRITE(mempmv) */
+      deptno, count(*)
+    from big_emp
+    group by deptno;
+    
+    alter system flush buffer_cache
+    
+    select * from v$parameter where name ='query_rewrite_integrity'
+    
+    
+
+
+            declare
+             query varchar2(256) := 's select  /*+ REWRITE(mempmv) */  deptno, count(*)  from big_emp  group by deptno';
+            begin
+              dbms_mview.explain_rewrite(query);
+            end;
+
+
+
+            select * from  rewrite_table
+            
+            truncate table  rewrite_table
+
+
+            execute dbms_mview.explain_mview('MEMPMV')
+            
+            
+            COMMIT
+
+
+                                                    mv_capabilities_table
+
+
+
+    
+
+
+    drop index MEMP_01
+    
+    
+    select * from BIG_EMP
+    
+    mempmv

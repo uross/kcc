@@ -1,0 +1,1 @@
+select OBJECT_NAME,OBJECT_TYPE,to_char(CREATED,'YYYYMMDD HH24:MI:SS'),to_char(LAST_DDL_TIME,'YYYYMMDD HH24:MI:SS') from dba_objects where object_name= 'TBL_OD_EXP_PRCHS_INFO';

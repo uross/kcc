@@ -1,0 +1,58 @@
+accept hash_value 'input hash_value'
+select first_load_time
+      ,round(buffer_gets/EXECUTIONS) buffer_get
+      ,disk_reads/EXECUTIONS disk_read
+      ,EXECUTIONS
+  from v$sqlarea
+  where hash_value=&hash_value
+  
+  
+
+
+-------악성 sql추출
+set line 180
+
+accept first input number 1= load_time 2=logical_reads 3=logicalreads avg 4=physical 7=execution  8=cputime 9=elpasetime 
+accept second inpt number    row number 
+select * from (  
+  select first_load_time, buffer_gets
+      ,round(buffer_gets/decode(executions,0,1,executions)) buffer_get_avg
+      ,disk_reads/decode(executions,0,1,executions) disk_read_avg
+      ,ROWS_PROCESSED
+      ,ROWS_PROCESSED/decode(executions,0,1,executions) row_processed_avg
+      ,EXECUTIONS
+      ,CPU_TIME
+      ,ELAPSED_TIME, hash_value
+  from v$sqlarea
+where buffer_gets >100 and round(buffer_gets/decode(executions,0,1,executions)) > 10 order by &a desc
+)where rownum <= &b;
+
+
+
+
+
+
+
+----sql_full text 구하기 
+select   dbms_lob.substr(a.sql_fulltext,dbms_lob.getlength(a.sql_fulltext),1) as "Full_SQL",
+--        'Expected Run Time = '||buffer_gets/decode(executions,0,1,executions)/500 as "Running Time",
+        'Executions : '||a.executions,
+        'Hash-Value : '||hash_value
+from    v$sqlarea a
+--where buffer_gets >100000
+where hash_value = 1955997807
+
+
+
+
+
+select   dbms_lob.substr(a.sql_fulltext,dbms_lob.getlength(a.sql_fulltext),1) as "Full_SQL"
+from    v$sqlarea a
+
+
+
+  where hash_value=2945738873
+  
+  
+  2565932912
+  3722869594

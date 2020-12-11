@@ -1,0 +1,8 @@
+set line 180
+
+col TARGET format a40
+col units format a10
+col message format a70
+
+select sid, target, sofar, totalwork, units, elapsed_seconds, message from    V$SESSION_LONGOPS where sid=3232
+and serial#=4896   ;

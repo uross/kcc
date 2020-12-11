@@ -1,0 +1,48 @@
+AWR로 부터 Top Sql 찾아 보기 
+
+SELECT a.* ,
+       (
+        SELECT sql_text
+        FROM   dba_hist_sqltext
+        WHERE  sql_id=A.sql_id
+       ) sqltext
+  FROM (
+         SELECT *
+           FROM   (
+                    SELECT snap_id ,
+                           sql_id ,
+                           buffer_gets_total totalbuffer ,
+                           buffer_gets_total/decode( executions_total , 0 , 1 , executions_total ) bufferget ,
+                           rows_processed_total/decode( executions_total , 0 , 1 , executions_total ) rowavg
+                      FROM   dba_hist_sqlstat
+                     WHERE  buffer_gets_total IS NOT NULL
+                       AND  SNAP_ID BETWEEN 415
+                    ORDER  BY 3 DESC
+                  )
+           WHERE  ROWNUM <20
+      ) A
+
+
+
+SELECT * FROM DBA_HIST_SQLSTAT WHERE SQL_ID='c20n3dpj8dmsc'
+
+
+
+SELECT * FROM dba_hist_SQLTEXT
+
+
+SELECT * FROM DBA_HIST_SQLSTAT WHERE SQL_ID='3y9bat7nwcjy5'
+
+
+
+
+지난 플랜 보기 
+
+      select lpad(operation, length(operation)+2*(level-1))||
+       decode(id,0, 'Cost Estimate : ' ||  decode (position , '0','N/A',position), null)|| ' ' || options ||  decode(object_name, null, null, ' : ') ||
+       object_owner|| case when object_name is not null then '.' else '' end || object_name||
+       decode(object_type, 'UNIQUE',' (U)', 'NIN_UNIQUE',
+       '(NU)', null) plan
+  from DBA_HIST_SQL_PLAN
+  start with id=0 and sql_id='1ccjnd1tfmyam'
+  connect by prior id=parent_id and sql_id='1ccjnd1tfmyam'

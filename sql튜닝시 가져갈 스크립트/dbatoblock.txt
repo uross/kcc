@@ -1,0 +1,19 @@
+set serveroutput on 
+
+declare
+l_dba number := to_number('07DCF32C','xxxxxxxx');
+l_file number := dbms_utility.data_block_address_file(l_dba);
+l_block number := dbms_utility.data_block_address_block(l_dba);
+begin 
+    dbms_output.put_line ('file : ' || l_file);
+    dbms_output.put_line ('block : ' || l_block);
+end;
+
+
+col dba new_value dba2
+
+select '&c' dba from dual;
+
+select dbms_utility.data_block_address_file(to_number(&dba2,'xxxxxxxx')) file1 , 
+       dbms_utility.data_block_address_block(to_number(&dba2,'xxxxxxxx')) block1
+from dual;

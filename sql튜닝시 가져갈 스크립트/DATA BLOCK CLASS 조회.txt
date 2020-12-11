@@ -1,0 +1,1 @@
+SELECT ROWNUM AS class#, class FROM v$waitstat
