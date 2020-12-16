@@ -1,5 +1,7 @@
 # 스펙 구현 여부 
 
+# jdk 1.7 빌드 java -jar was-jar-with-dependencies.jar 파일로 실행
+
 
 ## 1. HTTP/1.1 의 Host 헤더를 해석하세요. (구현)
 
@@ -24,9 +26,7 @@ http://localhost:8000/nhn.exe 호출 403 호출
 
 ## 5.logback 프레임워크 http://logback.qos.ch/를 이용하여 다음의 로깅 작업을 합니다.(구현)
 
-ErrorMakeClassTest juni 오루 발생 테스트 
-오류 발생시 stackTrace 전체를 로그파일로 남김
-프로젝트/logs 디렉토리  was-error.log 파일로 출력
+프로젝트/logs 디렉토리  일반: was-server.log, 오류: was-error.log 파일로 출력
 
 
 
