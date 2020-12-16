@@ -31,9 +31,17 @@ http://localhost:8000/nhn.exe 호출 403 호출
 
 프로젝트/logs 디렉토리  일반: was-server.log, 오류: was-error.log 파일로 출력
 
-### 5.간단한 WAS 를 구현합니다.
+### 6.간단한 WAS 를 구현합니다. (구현)
+### 7.현재 시각을 출력하는 SimpleServlet 구현체를 작성하세요 (구현)
 
+http://localhost:8000/Hello 
+http://localhost:8000/service.Hello 호출
 
+현재 시간과 각각 호출되는 sevlet url 매핑으로 호출
+
+### 8.앞에서 구현한 여러 스펙을 검증하는 테스트 케이스를 JUnit4 를 이용해서 작성하세요. (일부구현)
+
+StartServerManagerTest junit 테스트 주석 제거 host 명 변경으로 호출 테스트
 
 
 
