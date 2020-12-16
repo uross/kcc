@@ -1,7 +1,6 @@
 # 스펙 구현 여부 
 
 ### jdk 1.8 빌드 패키징시 java -jar was-jar-with-dependencies.jar 파일로 실행
-### C:\dev\work2020\was 경로에서 구현
 
 ### 1. HTTP/1.1 의 Host 헤더를 해석하세요. (구현)
 
@@ -9,7 +8,8 @@
 StartServerManager 주석풀고 테스트합니다.
 
 host 변수 a.com,  b.com 세팅해서 테스트<br>
-http://localhost:8000/index.html 호출 테스트 호스트마다 출력되는 화면변경
+http://localhost:8000/index.html 호출 테스트<br> 
+호스트마다 출력되는 화면변경
 
 
 ### 2.다음 사항을 설정 파일로 관리하세요.(구현)
