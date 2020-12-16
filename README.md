@@ -31,7 +31,7 @@ http://localhost:8000/main.exe 호출 403 호출 /error/403ErrorPage.html
 ### 6.간단한 WAS 를 구현합니다. (구현)
 ### 7.현재 시각을 출력하는 SimpleServlet 구현체를 작성하세요 (구현)
 
-http://localhost:8000/Hello 
+http://localhost:8000/Hello<br> 
 http://localhost:8000/service.Hello 호출
 
 현재 시간과 각각 호출되는 sevlet url 매핑으로 호출
