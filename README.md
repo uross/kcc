@@ -1,7 +1,7 @@
 # 스펙 구현 여부 
 
-## jdk 1.8 빌드 java -jar was-jar-with-dependencies.jar 파일로 실행
-## C:\dev\work2020\was 경로에서 구현
+### jdk 1.8 빌드 패키징시 java -jar was-jar-with-dependencies.jar 파일로 실행
+### C:\dev\work2020\was 경로에서 구현
 
 ### 1. HTTP/1.1 의 Host 헤더를 해석하세요. (구현)
 
